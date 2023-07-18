@@ -5,16 +5,15 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import TemplateView, FormView, ListView, DetailView
 
-from webapp.forms import IssueTrackerForm, SearchForm
-from webapp.models import Issue
+from webapp.forms import IssueTrackerForm, SearchForm, ProjectForm
+from webapp.models import Issue, Project
 from django.db.models import Q
 
 
-class IssueListView(ListView):
-    model = Issue
-    template_name = "issues/index.html"
-    context_object_name = "issues"
-    ordering = "-updated_at"
+class ProjectListView(ListView):
+    model = Project
+    template_name = "projects/index.html"
+    context_object_name = "projects"
     paginate_by = 5
 
     def dispatch(self, request, *args, **kwargs):
@@ -30,7 +29,7 @@ class IssueListView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         if self.search_value:
-            queryset = queryset.filter(Q(summary__icontains=self.search_value) |
+            queryset = queryset.filter(Q(title__icontains=self.search_value) |
                                        Q(description__icontains=self.search_value))
         return queryset
 
@@ -43,17 +42,17 @@ class IssueListView(ListView):
         return None
 
 
-class IssueCreateView(FormView):
-    success_url = reverse_lazy("project_detail")
-    form_class = IssueTrackerForm
-    template_name = "issues/create.html"
+class ProjectCreateView(FormView):
+    success_url = reverse_lazy("projects")
+    form_class = ProjectForm
+    template_name = "projects/create.html"
 
     def form_valid(self, form):
         form.save()
         return redirect('projects')
 
 
-class IssueUpdateView(FormView):
+class ProjectUpdateView(FormView):
     form_class = IssueTrackerForm
     template_name = "issues/update.html"
 
@@ -73,18 +72,18 @@ class IssueUpdateView(FormView):
 
     def form_valid(self, form):
         self.issue.save()
-        return redirect('projects')
+        return redirect('issues')
 
 
-class IssueDetailedView(DetailView):
-    model = Issue
-    template_name = "issues/detail.html"
+class ProjectDetailedView(DetailView):
+    model = Project
+    template_name = "projects/detail.html"
 
 
-def delete_issue(request, pk):
+def delete_project(request, pk):
     issue = get_object_or_404(Issue, id=pk)
     if request.method == "GET":
         return render(request, "issues/delete_product.html", {'issue': issue})
     else:
         issue.delete()
-        return redirect('projects')
+        return redirect('issues')
