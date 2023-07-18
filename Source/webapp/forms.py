@@ -1,11 +1,25 @@
 from django import forms
 from django.forms import widgets
+from django.core.exceptions import ValidationError
+from webapp.models import Status, Type, Issue
 
-from webapp.models import Status, Type
+
+class IssueTrackerForm(forms.ModelForm):
+    class Meta:
+        model = Issue
+        fields = ["summary", "description", "status", "type"]
+        widgets = {
+            "content": widgets.Textarea(attrs={"cols": 30, "rows": 5}),
+            "type": widgets.CheckboxSelectMultiple
+        }
+
+        def clean(self):
+            cleaned_data = super().clean()
+            if cleaned_data.get('summary') and cleaned_data.get('description') and \
+                    cleaned_data['summary'] == cleaned_data['description']:
+                raise ValidationError('Description of the issue should not duplicate the summary')
+            return cleaned_data
 
 
-class IssueTrackerForm(forms.Form):
-    summary = forms.CharField(max_length=50, required=True, label="Краткое описание")
-    description = forms.CharField(max_length=2000, required=True, label="Описание", widget=widgets.Textarea)
-    status = forms.ModelChoiceField(queryset=Status.objects.all(), required=True, label="Статус")
-    types = forms.ModelMultipleChoiceField(queryset=Type.objects.all(), label="Типы")
+class SearchForm(forms.Form):
+    search = forms.CharField(max_length=50, required=False, label="Search")
