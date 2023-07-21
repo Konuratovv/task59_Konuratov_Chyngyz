@@ -17,10 +17,10 @@
             </li>
         </ul>
         <div class="card-body">
-            <a href="{% url "update" issue.pk %}" class="card-link">Update</a>
+            <a href="{% url "webapp:update" issue.pk %}" class="card-link">Update</a>
         </div>
         <div class="card-body">
-            <a href="{% url "delete" issue.pk %}" class="card-link">Delete</a>
+            <a href="{% url "webapp:delete" issue.pk %}" class="card-link">Delete</a>
         </div>
     </div>
 {% endblock %}

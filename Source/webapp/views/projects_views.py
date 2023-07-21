@@ -4,7 +4,8 @@ from msilib.schema import ListView
 from django.views import View
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import TemplateView, FormView, ListView, DetailView, CreateView
+from django.views.generic import TemplateView, FormView, ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from webapp.forms import IssueTrackerForm, SearchForm, ProjectForm
 from webapp.models import Issue, Project
@@ -43,41 +44,47 @@ class ProjectListView(ListView):
         return None
 
 
-class ProjectCreateView(CreateView):
+class ProjectCreateView(LoginRequiredMixin, CreateView):
     template_name = "projects/create.html"
     model = Project
-    fields = ['title', 'description', 'start_date', 'end_date']
+    form_class = ProjectForm
 
-    def get_success_url(self):
-        return reverse('article_view', kwargs={'pk': self.object.pk})
+    # def dispatch(self, request, *args, **kwargs):
+    #     if request.user.is_authenticated:
+    #         return super().dispatch(self, request, *args, **kwargs)
+    #     return redirect("accaunts:login")
+
+    # def get_success_url(self):
+    #     return reverse('article_view', kwargs={'pk': self.object.pk})
 
 
 def form_valid(self, form):
     form.save()
-    return redirect('projects')
+    return redirect('webapp:projects')
 
 
-class ProjectUpdateView(FormView):
-    form_class = IssueTrackerForm
+class ProjectUpdateView(LoginRequiredMixin, UpdateView):
+    form_class = ProjectForm
     template_name = "projects/update.html"
+    model = Project
 
-    def dispatch(self, request, *args, **kwargs):
-        self.project = self.get_object(kwargs.get('pk'))
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_object(self, pk):
-        return get_object_or_404(Issue, id=pk)
-
-    def get_initial(self):
-        initial = {}
-        for key in 'summary', 'description', 'status':
-            initial[key] = getattr(self.project, key)
-        initial['type'] = self.project.type.all()
-        return initial
-
-    def form_valid(self, form):
-        self.project.save()
-        return redirect('projects')
+    # def dispatch(self, request, *args, **kwargs):
+    #     self.project = self.get_object(kwargs.get('pk'))
+    #     return super().dispatch(request, *args, **kwargs)
+    #
+    # def get_object(self, pk):
+    #     return get_object_or_404(Issue, id=pk)
+    #
+    # def get_initial(self):
+    #     initial = {}
+    #     for key in 'summary', 'description', 'status':
+    #         initial[key] = getattr(self.project, key)
+    #     initial['type'] = self.project.type.all()
+    #     return initial
+    #
+    # def form_valid(self, form):
+    #     self.project.save()
+    #     return redirect('webapp:projects')
 
 
 class ProjectDetailedView(DetailView):
@@ -92,10 +99,7 @@ class ProjectDetailedView(DetailView):
         return context
 
 
-def delete_project(request, pk):
-    project = get_object_or_404(Issue, id=pk)
-    if request.method == "GET":
-        return render(request, "projects/delete_product.html", {'project': project})
-    else:
-        project.delete()
-        return redirect('projects')
+class ProjectDeleteView(LoginRequiredMixin, DeleteView):
+    model = Project
+    template_name = "projects/delete.html"
+    reverse_lazy('webapp:projects')

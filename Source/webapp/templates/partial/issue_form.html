@@ -2,5 +2,5 @@
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" class="btn btn-primary" value={{ button_text }}>
-    <a href="{% url "projects" %}" class="btn btn-secondary">Homepage</a>
+    <a href="{% url "webapp:projects" %}" class="btn btn-secondary">Homepage</a>
 </form>

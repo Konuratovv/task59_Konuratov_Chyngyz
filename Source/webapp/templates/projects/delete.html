@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h3>Вы уверены что хотите удалить эту задачу?</h3>
+    <h3>Вы уверены что хотите удалить этот проект?</h3>
     <form action="" method="post">
         {% csrf_token %}
         <button class="btn btn-primary">Да</button>
-        <a class="btn btn-secondary" href="{% url "issues" %}">Нет</a>
+        <a class="btn btn-secondary" href="{% url "webapp:projects" %}">Нет</a>
     </form>
 {% endblock %}

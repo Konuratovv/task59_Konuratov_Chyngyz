@@ -5,15 +5,17 @@
     {% for project in projects %}
         <div class="card mt-2 text-center" style="width: 18rem;">
             <div class="card-body">
-                <a style="text-decoration: none; color: black" href="{% url "project_detail" project.pk %}">
+                <a style="text-decoration: none; color: black" href="{% url "webapp:project_detail" project.pk %}">
                     <h4>{{ project.title }}</h4></a>
                 <p>Старт: {{ project.start_date }}</p>
                 <p>Окончание: {{ project.end_date }}</p>
+                <a href="{% url "webapp:project_update" project.pk %}">Update</a>
+                <a href="{% url "webapp:project_delete" project.pk %}">Delete</a>
             </div>
         </div>
     {% endfor %}
     <div class="card mt-2 text-center" style="width: 18rem; color: lightskyblue;  text-decoration: none">
-        <a href="{% url "project_create" %}"><h1 style="font-size: 70pt; text-decoration: none">+</h1></a>
+        <a href="{% url "webapp:project_create" %}"><h1 style="font-size: 70pt; text-decoration: none">+</h1></a>
     </div>
     {% if is_paginated %}
         {% include 'partial/pagination.html' %}
