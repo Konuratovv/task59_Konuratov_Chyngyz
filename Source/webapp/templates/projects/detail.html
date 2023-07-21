@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block title %}{{ project.title }}{% endblock %}
 {% block content %}
-<h4>Описание:</h4>
-            <p class="card-text">{{ project.description }}</p>
+    <h4>Описание:</h4>
+    <p class="card-text">{{ project.description }}</p>
 
-        {% for issue in issues %}
+    {% for issue in issues %}
         <div class="card mt-2 text-center" style="width: 18rem;">
             <div class="card-body">
                 <a style="text-decoration: none; color: black" href="{% url "detail" issue.pk %}">

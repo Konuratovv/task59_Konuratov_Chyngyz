@@ -3,7 +3,7 @@ from msilib.schema import ListView
 from django.views import View
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import TemplateView, FormView, ListView, DetailView
+from django.views.generic import TemplateView, FormView, ListView, DetailView, CreateView
 
 from webapp.forms import IssueTrackerForm, SearchForm
 from webapp.models import Issue
@@ -43,7 +43,7 @@ class IssueListView(ListView):
         return None
 
 
-class IssueCreateView(FormView):
+class IssueCreateView(CreateView):
     success_url = reverse_lazy("project_detail")
     form_class = IssueTrackerForm
     template_name = "issues/create.html"
@@ -87,4 +87,4 @@ def delete_issue(request, pk):
         return render(request, "issues/delete_product.html", {'issue': issue})
     else:
         issue.delete()
-        return redirect('projects')
+        return redirect('issues')

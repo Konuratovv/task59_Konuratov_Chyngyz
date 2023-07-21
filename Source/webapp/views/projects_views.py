@@ -1,9 +1,10 @@
+from audioop import reverse
 from msilib.schema import ListView
 
 from django.views import View
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import TemplateView, FormView, ListView, DetailView
+from django.views.generic import TemplateView, FormView, ListView, DetailView, CreateView
 
 from webapp.forms import IssueTrackerForm, SearchForm, ProjectForm
 from webapp.models import Issue, Project
@@ -42,22 +43,26 @@ class ProjectListView(ListView):
         return None
 
 
-class ProjectCreateView(FormView):
-    success_url = reverse_lazy("projects")
-    form_class = ProjectForm
+class ProjectCreateView(CreateView):
     template_name = "projects/create.html"
+    model = Project
+    fields = ['title', 'description', 'start_date', 'end_date']
 
-    def form_valid(self, form):
-        form.save()
-        return redirect('projects')
+    def get_success_url(self):
+        return reverse('article_view', kwargs={'pk': self.object.pk})
+
+
+def form_valid(self, form):
+    form.save()
+    return redirect('projects')
 
 
 class ProjectUpdateView(FormView):
     form_class = IssueTrackerForm
-    template_name = "issues/update.html"
+    template_name = "projects/update.html"
 
     def dispatch(self, request, *args, **kwargs):
-        self.issue = self.get_object(kwargs.get('pk'))
+        self.project = self.get_object(kwargs.get('pk'))
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, pk):
@@ -66,24 +71,31 @@ class ProjectUpdateView(FormView):
     def get_initial(self):
         initial = {}
         for key in 'summary', 'description', 'status':
-            initial[key] = getattr(self.issue, key)
-        initial['type'] = self.issue.type.all()
+            initial[key] = getattr(self.project, key)
+        initial['type'] = self.project.type.all()
         return initial
 
     def form_valid(self, form):
-        self.issue.save()
-        return redirect('issues')
+        self.project.save()
+        return redirect('projects')
 
 
 class ProjectDetailedView(DetailView):
     model = Project
     template_name = "projects/detail.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_object()
+        issues = project.issues.all()
+        context['issues'] = issues
+        return context
+
 
 def delete_project(request, pk):
-    issue = get_object_or_404(Issue, id=pk)
+    project = get_object_or_404(Issue, id=pk)
     if request.method == "GET":
-        return render(request, "issues/delete_product.html", {'issue': issue})
+        return render(request, "projects/delete_product.html", {'project': project})
     else:
-        issue.delete()
-        return redirect('issues')
+        project.delete()
+        return redirect('projects')
