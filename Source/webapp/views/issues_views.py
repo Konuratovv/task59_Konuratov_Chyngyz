@@ -7,7 +7,7 @@ from django.views.generic import TemplateView, FormView, ListView, DetailView, C
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from webapp.forms import IssueTrackerForm, SearchForm
-from webapp.models import Issue
+from webapp.models import Issue, Project
 from django.db.models import Q
 
 
@@ -50,8 +50,11 @@ class IssueCreateView(LoginRequiredMixin, CreateView):
     template_name = "issues/create.html"
 
     def form_valid(self, form):
-        form.save()
-        return redirect('webapp:projects')
+        project = get_object_or_404(Project, pk=self.kwargs.get('pk'))
+        issue = form.save()
+        issue.project = project
+        issue.save()
+        return redirect('webapp:project_detail', pk=project.pk)
 
 
 class IssueUpdateView(LoginRequiredMixin, UpdateView):

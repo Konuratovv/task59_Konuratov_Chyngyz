@@ -7,7 +7,7 @@ from webapp.models import Status, Type, Issue, Project
 class IssueTrackerForm(forms.ModelForm):
     class Meta:
         model = Issue
-        fields = ["summary", "description", "status", "type", "project"]
+        fields = ["summary", "description", "status", "type"]
         widgets = {
             "content": widgets.Textarea(attrs={"cols": 30, "rows": 5}),
             "type": widgets.CheckboxSelectMultiple

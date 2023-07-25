@@ -54,8 +54,8 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     #         return super().dispatch(self, request, *args, **kwargs)
     #     return redirect("accaunts:login")
 
-    # def get_success_url(self):
-    #     return reverse('article_view', kwargs={'pk': self.object.pk})
+    def get_success_url(self):
+        return reverse('webapp:projects')
 
 
 def form_valid(self, form):
