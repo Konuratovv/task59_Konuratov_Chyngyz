@@ -1,11 +1,16 @@
 from django.db import models
+from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 
 class Project(models.Model):
-    start_date = models.DateField(verbose_name="Дата начала")
+    start_date = models.DateField(verbose_name="Дата начала", null=False, blank=False)
     end_date = models.DateField(blank=True, null=True, verbose_name="Дата окончания")
     title = models.CharField(max_length=50, null=False, blank=False, verbose_name="Название")
     description = models.TextField(max_length=2000, null=False, blank=False, verbose_name="Описание")
+    user = models.ManyToManyField(User, related_name="projects", blank=True)
+    author = models.ForeignKey(get_user_model(), related_name='project', on_delete=models.SET_DEFAULT, default=1,
+                               verbose_name="Автор")
 
 
 class AbstractModel(models.Model):
@@ -37,7 +42,8 @@ class Issue(AbstractModel):
                                verbose_name="Статус")
     type = models.ManyToManyField("webapp.Type", related_name="issues", through="webapp.IssueType",
                                   through_fields=('issue', 'type'), blank=True)
-    project = models.ForeignKey("webapp.Project", related_name="issues", on_delete=models.CASCADE, default=1, verbose_name="Проект")
+    project = models.ForeignKey("webapp.Project", related_name="issues", on_delete=models.CASCADE, default=1,
+                                verbose_name="Проект")
 
 
 class IssueType(AbstractModel):

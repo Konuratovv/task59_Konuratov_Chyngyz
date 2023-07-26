@@ -2,6 +2,7 @@ from django import forms
 from django.forms import widgets
 from django.core.exceptions import ValidationError
 from webapp.models import Status, Type, Issue, Project
+from django.contrib.auth.models import User
 
 
 class IssueTrackerForm(forms.ModelForm):
@@ -42,6 +43,15 @@ class ProjectForm(forms.ModelForm):
                 cleaned_data['title'] == cleaned_data['description']:
             raise ValidationError('Description of the issue should not duplicate the title')
         return cleaned_data
+
+
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = ['user']
+        widgets = {
+            "user": widgets.CheckboxSelectMultiple
+        }
 
 
 class SearchForm(forms.Form):

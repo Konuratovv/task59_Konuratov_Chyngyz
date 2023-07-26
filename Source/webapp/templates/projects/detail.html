@@ -3,6 +3,17 @@
 {% block content %}
     <h4>Описание:</h4>
     <p class="card-text">{{ project.description }}</p>
+    {% if users %}
+        <p>
+            <b>Users:</b>
+            {% for user in users %}
+                {{ user }},
+            {% endfor %}
+        </p>
+    {% endif %}
+    <a class="btn btn-primary" href="{% url "webapp:add_user" project.pk %}">Manage users</a>
+
+    <h1>Задачи:</h1>
 
     {% for issue in issues %}
         <div class="card mt-2 text-center" style="width: 18rem;">
@@ -20,7 +31,7 @@
         </div>
     {% endfor %}
     <div class="card mt-2 text-center" style="width: 18rem; color: lightskyblue;  text-decoration: none">
-        <a href="{% url "webapp:create" project.pk%}"><h1 style="font-size: 70pt; text-decoration: none">+</h1></a>
+        <a href="{% url "webapp:create" project.pk %}"><h1 style="font-size: 70pt; text-decoration: none">+</h1></a>
     </div>
     {% if is_paginated %}
         {% include 'partial/pagination.html' %}

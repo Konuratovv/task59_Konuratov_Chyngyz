@@ -4,7 +4,7 @@ from django.views import View
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import TemplateView, FormView, ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from webapp.forms import IssueTrackerForm, SearchForm
 from webapp.models import Issue, Project
@@ -44,10 +44,13 @@ class IssueListView(ListView):
         return None
 
 
-class IssueCreateView(LoginRequiredMixin, CreateView):
-    success_url = reverse_lazy("project_detail")
+class IssueCreateView(PermissionRequiredMixin, LoginRequiredMixin, CreateView):
+    # success_url = reverse_lazy("webapp:project_detail")
     form_class = IssueTrackerForm
     template_name = "issues/create.html"
+
+    def has_permission(self):
+        return self.request.user.has_perm('webapp.add_issue')
 
     def form_valid(self, form):
         project = get_object_or_404(Project, pk=self.kwargs.get('pk'))
@@ -57,36 +60,31 @@ class IssueCreateView(LoginRequiredMixin, CreateView):
         return redirect('webapp:project_detail', pk=project.pk)
 
 
-class IssueUpdateView(LoginRequiredMixin, UpdateView):
+class IssueUpdateView(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
     form_class = IssueTrackerForm
     template_name = "issues/update.html"
     model = Issue
-
-    # def dispatch(self, request, *args, **kwargs):
-    #     self.issue = self.get_object(kwargs.get('pk'))
-    #     return super().dispatch(request, *args, **kwargs)
-    #
-    # def get_object(self, pk):
-    #     return get_object_or_404(Issue, id=pk)
-    #
-    # def get_initial(self):
-    #     initial = {}
-    #     for key in 'summary', 'description', 'status':
-    #         initial[key] = getattr(self.issue, key)
-    #     initial['type'] = self.issue.type.all()
-    #     return initial
 
     def form_valid(self, form):
         self.issue.save()
         return redirect('projects')
 
+    def has_permission(self):
+        return self.request.user.has_perm('webapp.change_issue')
 
-class IssueDetailedView(DetailView):
+
+class IssueDetailedView(PermissionRequiredMixin, DetailView):
     model = Issue
     template_name = "issues/detail.html"
 
+    def has_permission(self):
+        return self.request.user.has_perm('webapp.view_issue')
 
-class IssueDeleteView(LoginRequiredMixin, DeleteView):
+
+class IssueDeleteView(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
     model = Issue
     template_name = "issues/delete.html"
     reverse_lazy('webapp:project_detail')
+
+    def has_permission(self):
+        return self.request.user.has_perm('webapp.delete_issue')

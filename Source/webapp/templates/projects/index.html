@@ -9,6 +9,16 @@
                     <h4>{{ project.title }}</h4></a>
                 <p>Старт: {{ project.start_date }}</p>
                 <p>Окончание: {{ project.end_date }}</p>
+                <p>Автор: {{ project.author }}</p>
+                {% if project.user %}
+                    <p>
+                        Users:
+                        {% for user in project.user.all %}
+
+                            {{ user }},
+                        {% endfor %}
+                    </p>
+                {% endif %}
                 <a href="{% url "webapp:project_update" project.pk %}">Update</a>
                 <a href="{% url "webapp:project_delete" project.pk %}">Delete</a>
             </div>
